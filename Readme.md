@@ -1,146 +1,369 @@
 # **Build a contact center for booking and checking appointment with AWS Connect/Lex/Lambda**
 
+This lab is provided as part of **Innovate**.
+
+ℹ️ You will run this lab in your own AWS account. Please follow directions at the end of the lab to remove resources to avoid future costs.
+
 ## **Overview**
-In this lab we, you will be building a contact center using Amazon Connect and integrating with Amazon Lex. Amazon Lex interprets dual-tone multi-frequency signaling (DTMF) digits entered on a keypad. It matches the intent based on that input in the same way it matches the intent when you speak an utterance. This provides for greater flexibility for customers to interact with your contact center. 
+In this lab, you will be building a contact center using Amazon Connect and integrating with Amazon Lex. Amazon Lex interprets dual-tone multi-frequency signaling (DTMF) digits entered on a keypad. It matches the intent based on that input in the same way it matches the intent when you speak an utterance. This provides for greater flexibility for customers to interact with your contact center.
+
+**Duration:** Approximately 1 hour
 
 ## **Architecture**
-![sparkles](images/Architecture-Diagram.png)
 
-## **Walkthrough**
-1. [Create Lex Chat Bot](#CreateLexChatBot)
-2. [Create Amazon Connect Instance](#CreateAmazonConnect#)
-3. [Amazon Connect Lex Integration](#integration)
+![](images/Architecture-Diagram.png)
 
+**Overview**
 
+- Launch AWS CloudFormation Stack
+- Create Lex Chat Bot
+- Create Amazon Connect Instance
+- Amazon Connect Lex Integration
 
+## Setup: Launch AWS CloudFormation Stack
 
-### **Create Lex Chat Bot <a name="CreateLexChatBot"></a>**
+You will use AWS CloudFormation to deploy an AWS Lambda function in your AWS account. It will be deployed in the **Sydney region**. Please ensure you follow directions at the end of the lab to delete the CloudFormation stack to remove resources.
 
-1.	Open the Amazon Lex Console in N.Virginia Region at https://console.aws.amazon.com/lex/home?region=us-east-1#
-2.	On the Bots page, choose **Create**
+**1.** Login to your AWS account.
 
-![sparkles](/images/Bot_Create.png)
+**2.** Right-click this link and open in a new browser tab: [Launch Stack into us-east-1 with CloudFormation](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=LexFunction&templateURL=https://s3-ap-southeast-2.amazonaws.com/share.jr-class.net/lex-connect-book-appointment.yaml)
 
-3.	Create a **‘Custom bot’**.
-Name the Bot as **BookAppointment**
-Complete other fields as specificed in the picture below and choose **Create**.
-![sparkles](images/Lex-CustomBot.png)
+The CloudFormation console will be displayed, with some information already entered.
 
-#### **Create BookAppointment Intent** - Action user wants to perform
-1.	Choose **Create Intent**. Name the intent as **BookAppointment**
-![sparkles](images/Intent_BookAppointment_Create.png)
-![sparkles](/images/Intent_BookAppointment_Name.png)
+**3.** Click **Next** three times.
 
-2.	Create Utterances - Spoken or typed phrases that will invoke our intent as shown in the picture
-![sparkles](images/Intent_BookAppointment_Utterances.png)
+**4.** At the bottom of the page, select "I acknowledge that AWS CloudFormation might create IAM resources".
 
-3.	Set initialization and validation function
-![sparkles](/images/Intent_BookAppointment_Lambda.png)
+![Create stack](images/CreateStack.png)
 
-1. Adding Slots - Parameters required to fulfil the intent.
-Configure the slots as follows:
-![sparkles](images/Intent_BookAppointment_Slots.png)
+**5.** Click **Create stack**.
 
-5. Set Fulfillment function
+This will create an AWS Lambda function that you will use with Amazon Lex. There is no need to wait, you can continue with the next steps.
 
-![sparkles](images/Intent_BookAppointment_Fulfillment.png)
+## Part 1: Create Lex Chat Bot
 
-6. Save Intent
+You will now create the Lex Chat Bot.
 
-#### **Create CheckAppointment Intent**
-1.	Choose to **Add Intents**. Name intent as CheckAppointment
-![sparkles](images/Intent_CheckAppointment_Create.png)
+**6.** In the **Services** menu, click **Amazon Lex**.
 
-1. Create Utterances - Spoken or typed phrases that will invoke our intent
-![sparkles](images/Intent_CheckAppointment_Utterances.png)
+**7.** Confirm that you are running in the **Sydney** region (shown in the top-right of the console). If a different region is showing, change to **Sydney**.
 
-3.	Set Fulfillment function
+**8.** Click **Get Started**.
 
-![sparkles](images/Intent_BookAppointment_Fulfillment.png)
+You will be presented with a "Create your bot" page. A number of sample bots are provided, but you will create your own custom bot.
 
-4. Save Intent
+**9.** Click **Custom bot**, then configure:
 
+- **Bot name:** `BookAppointment`
+- **Output voice:** _Salli_
+- **Session timeout:** _5 minutes_
+- **COPPA:** _No_
 
-#### Build and Publish Lex Bot ####
-Build and Publish the Bot. Choose Alias as BookAppointment.
-![sparkles](images/Bot_Build.png)
-![sparkles](images/Bot_Publish.png)
+![Configuration](images/Lex-CustomBot.png)
 
-### Create Amazon Connect Instance <a name="CreateAmazonConnect"></a>
-For the simplicity of this lab, we created a Connect instance in **Sydney Region** for you. You can find the Connect instance at https://ap-southeast-2.console.aws.amazon.com/connect/home?region=ap-southeast-2
-![sparkles](images/connect-instace.png)
+- Click **Create**.
 
-Click on the **Instance Alias**
+### Create Lex Intent
 
-### Integrate Amazon Connect and Lex <a name="integration"></a>
-#### Add the Amazon Lex bot to Amazon Connect Instance
-![sparkles](images/connect-lex-add-lex.png)
+You will now configure the _intents_ for the Lex bot, which are the actions that the user can perform.
 
-#### Create a contact flow and add your Amazon Lex bot
-1.	Log in to your Amazon Connect instance
-![sparkles](images/connect-lex-login.png)
+The first intent is for users to book an appointment.
 
+**10.** Click **+ Create Intent**, then:
 
-1. Choose **Routing -> Contact flows -> Create contact flow**, and type a **SydneySummitContactFlow-yourname**
-![sparkles](images/connect-lex-contactflox.png)
-![sparkles](images/connect-contact-flow-name.png)
+- Click **Create Intent**
+- **Name:** `BookAppointment`
+- Click **Add**
 
-3.	Under **Interact**, drag a **Get customer input** block onto the designer.
-4.	Open the **Get customer input** block, and choose **Text to speech (Ad hoc)**, Enter text.
-5.	Type a message that provides callers with information about what they can do. For example, use a message that matches the intents used in the bot, such as **“To make an appointment, press or say 1. To check an appointment, press or say 2”**
+![](images/Intent_BookAppointment_Create.png)
+![](/images/Intent_BookAppointment_Name.png)
 
-![sparkles](images/connect-contactflow-getcustomerinput-1.png)
+### Create Slot Types
 
+Slot Types are used to define special values that a user will provide. You will create an Appointment Type that will accept pre-defined values.
 
-6.	Select Amazon Lex, for name, use **BookAppointment**. For alias, use **BookAppointment**
-![sparkles](images/connect-contactflow-addlexbot.png)
-7.	Choose **Add an attribute -> Use attribute**. For type, choose **System**. For Attribute, choose **Customer Number**. For Destination Key, set it as **ContactNumber**. 
-![sparkles](images/connect-contactflow-addattributes.png)
+**11.** In the left navigation pane, beside **Slot types** click ⨁, then:
 
-8.	To specify the intents, choose **Add an intent**. Add **BookAppointment** and **CheckAppointment**.
-![sparkles](images/connect-contactflow-addintents.png)
+- Click **Create slot type**
+- **Slot type name:** `AppointmentTypeValue`
+- **Description:** `Types of Appointments`
+- **Values:**
+  - `cleaning`
+  - `whitening`
+- Click **Save slot type**
 
-9. Connect **Get customer input** block to the Entry point block.
-![sparkles](images/connect-contactflow-getcustomerinput-2.png)
+### Create Utterances
 
-10.	Under **Interact**, drag a Play prompt block onto the designer, and connect it to the **Default** and **Error** from the **Get customer input** block. 
-![sparkles](images/connect-contactflow-playprompt-1.png)
+You will now define utterances, which are spoken or typed phrases that will invoke the intent.
 
-11.	Open the Play prompt block and Text to speech (Ad hoc), Enter text. Type “All of our agents are busy at the moment. Please call again”. Save the block.
+**12.** In **Sample utterances**, enter the following phrases (press Enter after each one):
 
-![sparkles](images/connect-contactflow-playprompt-2.png)
+- `I want to book an appointment`
+- `Book Appointment`
+- `One`
 
-12.	Under **Terminate/Transfer**, drag **Disconnect / hang up**, connect it to the **Play Prompt block** and the **BookAppointment** and **CheckAppointment** intents. 
+![](images/Intent_BookAppointment_Utterances.png)
 
-![sparkles](images/connect-contactflow-disconnect.png)
+**13.** Expand **Lambda initialization and validation**, then:
 
-13.	Save and publish the contact flow.
+- Select (turn on) **Initialization and validation code hook**
+- **Lambda function:** _lex-connect-book-appointment_
+- Click **OK**
 
-#### Assign the contact flow to a phone number
-1.	Open the Amazon Connect Dashboard
+![](/images/Intent_BookAppointment_Lambda.png)
 
-2.	Choose View phone numbers.
-![sparkles](images/connect-phonenumber-1.png)
+This tells Lex to use the AWS Lambda function that you loaded at the start of the lab.
 
-3.	**Claim a number**, select Toll free. Choose country as Australia and any number available
+You will now define _Slots_, which tell Lex how to interpret user requests.
 
-![sparkles](images/connect-phonenumber-2.png)
+**14.** Create three slots as shown below (click ⨁ to save each one):
 
-4.	In the **Contact flow/IVR** menu, choose the **SydneySummitContatFlow-yourname** flow that you just created.
-![sparkles](images/connect-contactflow.png)
+![](images/Intent_BookAppointment_Slots.png)
 
-5.	Choose **Save.**
+**15.** Select (turn on) **Required** for each of these slots (as shown in the picture).
 
-### Try it
-Dial the number you claimed above, and follow the prompts.
+**16.** Under **Fulfillment**:
 
-### Clean Up
-1. Release the number you claimed
+- Select **AWS Lambda function**
+- **Lambda function:** _lex-connect-book-appointment_
 
-![sparkles](images/connet-release.png)
+![](images/Intent_BookAppointment_Fulfillment.png)
 
-2. Run Lambda Function **lex-connect-delete-bot** in **N.Virginia** to delete Lex Bot
+**17.** Click **Save Intent** (at the bottom of the page).
 
-![sparkles](images/connect_cleanup_3.png)
+### Create CheckAppointment Intent
 
-![sparkles](images/connect_cleanup.png)
+You will create another intend for checking appointments.
+
+**18.** In the left navigation pane, beside **Intents** click ⨁, then:
+
+ - Click **Create intent**
+- **Name:** `CheckAppointment`
+- Click **Add**
+
+![](images/Intent_CheckAppointment_Create.png)
+
+**19.** In **Sample utterances**, enter the following phrases (press Enter after each one):
+
+- `two`
+- `check appointment`
+
+![](images/Intent_CheckAppointment_Utterances.png)
+
+**20.** Under **Fulfillment**:
+
+- Select **AWS Lambda function**
+- **Lambda function:** _lex-connect-book-appointment_
+
+(If a pop-up asks for confirmation of permissions, click **OK**.)
+
+![](images/Intent_BookAppointment_Fulfillment.png)
+
+**21.** Click **Save Intent** (at the bottom of the page).
+
+### Build and Publish Lex Bot
+
+**22.** Click **Build** (in the top-right), then:
+
+- Read the notice
+- Click **Build**
+- Wait until the build has finished
+
+![](images/Bot_Build.png)
+
+**23.** Click **Publish** (in the top-right), then:
+
+- **Create an alias:** `BookAppointment`
+- Click **Publish**
+- When it is finished, click **Close**
+
+![](images/Bot_Publish.png)
+
+### Test the Bot
+
+You can now test the bot via a text chat.
+
+**24.** Expand the **Test Chatbot** panel (on the very right).
+
+**25.** Try having a conversation with your bot, such as:
+
+- `Book appointment`
+- Pick a Date and a timeslot (if there is no availability, try the other days)
+
+## Create Amazon Connect Instance
+
+You will now use Amazon Connect to create a virtual contact center. It will use your Lex Bot to interact with callers.
+
+**26.** In the **Services** menu, select **Amazon Connect**.
+
+**27.** Click **Get started**, then configure:
+
+- **Access URL:** Enter your initials and a random number (eg `jb642`)
+- Click **Next step**
+- **First/Last Name:** Enter your name
+- **Username:** `lab-admin`
+- **Password:** `ConnectLab1`
+- **Email address:** Enter your email address
+- Click **Next step**
+- **Incoming calls:** _Yes_
+- **Outgoing calls:** _No_
+- Click **Next step** twice
+- Click **Create instance**
+
+Wait until Amazon Connect finishes creating your virtual contact center.
+
+**28.** Click the **Amazon Connect AWS console** at the bottom of the page.
+
+**29.** Click the name of your Connect instance in the **Instance Alias** column.
+
+**30.** In the left navigation pane, click **Contact flows**.
+
+**31.** Under **Amazon Lex**:
+
+- For **Bot**, select **BookAppointment**
+- Click **+ Add Lex Bot**
+
+Note: It should now display the message "No Lex bots available to add" under the **Bot** field. If this message is _not_ displayed, make sure you clicked the **+ Add Lex Bot** link.
+
+![](images/connect-lex-add-lex.png)
+
+This tells Amazon Connect to use your Lex Bot to interact with users.
+
+**32.** In the left navigation pane, click **Overview**.
+
+**33.** Click **Login as Administrator**.
+
+![](images/connect-lex-login.png)
+
+You will now configure the call flow that your callers will experience.
+
+**34.** In the left navigation pop-out menu, choose **Routing -> Contact flows**.
+
+![](images/connect-lex-contactflox.png)
+
+**35.** Click **Create contact flow**.
+
+**36.** Click **Enter a name**, then enter: `Lex lab`
+
+**37.** Under **Interact**, drag a **Get customer input** block onto the designer.
+
+**38.** Click the heading of the **Get customer input** block to display its settings, then:
+
+- Select **Text-to-speech or chat text**
+- **Enter text:** `To make an appointment, press or say 1. To check an appointment, press or say 2`
+
+**39.** Below that, click the **Amazon Lex** heading, then:
+
+- **Select an existing Lex bot:** _BookAppointment_
+- **Alias:** `$BookAppointment`
+
+![](images/connect-contactflow-addlexbot.png)
+
+- Click **Add an attribute**
+- Click **Use attribute**
+- **Destination key:** `ContactNumber`
+- **Type:** _System_
+- **Attribute:** _Contact Number_
+
+![](images/connect-contactflow-addattributes.png)
+
+- Click **Add an intent** then add `BookAppointment`
+- Click **Add another intent** then add `CheckAppointment`
+- Click **Save**
+
+![](images/connect-contactflow-addintents.png)
+
+**40.** Connect the blocks by dragging a line from **Entry Point - Start** to the **Get customer input** block.
+
+![](images/connect-contactflow-getcustomerinput-2.png)
+
+**41.** Under **Interact**, drag a **Play prompt** block onto the designer, then:
+
+- Connect **Default** to **Play Prompt**
+- Connect **Error** to **Play Prompt**
+
+![](images/connect-contactflow-playprompt-1.png)
+
+**42.** Click the title of the **Play prompt** block, then:
+
+- Click **Text-to-speech or chat text**
+- **Enter text:** `All of our agents are busy at the moment. Please call again.`
+- Click **Save**
+
+**43.** On the left, expand **Terminate/Transfer** and drag **Disconnect / hang up** onto the designer, then:
+
+- Connect it to the other blocks as shown:
+
+![](images/connect-contactflow-disconnect.png)
+
+**44.** Click **Save** (in the top right).
+
+**45.** Click **Publish**, then click **Publish**.
+
+### Assign the contact flow to a phone number
+
+**46.** Open the Amazon Connect Dashboard
+
+**47.** In the left navigation pop-out menu, choose **Routing -> Phone numbers**.
+
+![](images/connect-phonenumber-1.png)
+
+**48.** Click **Claim a number**
+
+**49.** Select a phone number in a location of your choice.
+
+![](images/connect-phonenumber-2.png)
+
+**50.** Towards the bottom of the page, for **Contact flow / IVR** select _Lex Lab_.
+
+**51.** Click **Save**.
+
+### Try it!
+
+Use your phone to call the number you claimed, and follow the prompts.
+
+- Make an appointment. You should receive an SMS reminder.
+- Call again, then check the appointment. Connect recognises your phone number automatically.
+
+## Clean Up
+
+Once you have finished testing the lab, follow these instructions to delete the resources from your AWS account. This will avoid any future costs for the services uses.
+
+**52.** To release the number you claimed:
+
+- Select the phone number and click **Release**
+
+![](images/connet-release.png)
+
++++ Something goes here to delete Amazon Connect +++
+
+**53.** Close the Amazon Lex administrator browser tab (with the blue cloud icon)
+
+**54.** Return to the Amazon Connect management console browser tab (with the orange cube icon)
+
+**55.** In the **Services** menu, select **Amazon Lex**.
+
+**56.** Click **BookAppointment**, then:
+
+- Click the **Settings** tab
+- Delete ⨂ the _BookAppointment_ alias
+
+**57.** Click the left arrow in the top-left corner to return to the Lex dashboard.
+
+**58.** Click the  ⃝ circle beside **BookAppointment**, then:
+
+- In the **Actions** menu, click **Delete**
+- Click **Continue**
+
+**59.** In the left navigation pane, click **Intents**, then:
+
+- Delete both intents
+
+**60.** In the left navigation pane, click **Slot types**, then:
+
+- Delete the displayed slot type
+
+**61.** In the **Services** menu, select **CloudFormation**, then:
+
+- Delete the **LexFunction** stack.
+
