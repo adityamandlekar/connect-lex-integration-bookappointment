@@ -24,9 +24,11 @@ In this lab, you will be building a contact center using Amazon Connect and inte
 
 You will use AWS CloudFormation to deploy an AWS Lambda function in your AWS account. It will be deployed in the **Sydney region**. Please ensure you follow directions at the end of the lab to delete the CloudFormation stack to remove resources.
 
+Amazon Lex is currently available in the N. Virginia, Oregon, Sydney and Ireland regions. Additional regions will be added in future.
+
 **1.** Login to your AWS account.
 
-**2.** Right-click this link and open in a new browser tab: [Launch Stack into us-east-1 with CloudFormation](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=LexFunction&templateURL=https://s3-ap-southeast-2.amazonaws.com/share.jr-class.net/lex-connect-book-appointment.yaml)
+**2.** Right-click this link and open in a new browser tab: [Launch Stack into the Sydney Region with CloudFormation](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=LexFunction&templateURL=https://s3-ap-southeast-2.amazonaws.com/share.jr-class.net/lex-connect-book-appointment.yaml)
 
 The CloudFormation console will be displayed, with some information already entered.
 
@@ -42,7 +44,7 @@ This will create an AWS Lambda function that you will use with Amazon Lex. There
 
 ## Part 1: Create Lex Chat Bot
 
-You will now create the Lex Chat Bot.
+You will now create a Lex Chat Bot that will be used to book appointments at a dental surgery. It will be capable of booking appointments for cleaning and whitening, and can also check and cancel appointments.
 
 **6.** In the **Services** menu, click **Amazon Lex**.
 
@@ -167,7 +169,7 @@ You will create another intend for checking appointments.
 
 - Read the notice
 - Click **Build**
-- Wait until the build has finished
+- Wait until the build has finished (it will take about 30 seconds)
 
 ![](images/Bot_Build.png)
 
@@ -212,7 +214,7 @@ You will now use Amazon Connect to create a virtual contact center. It will use 
 
 Wait until Amazon Connect finishes creating your virtual contact center.
 
-**28.** Click the **Amazon Connect AWS console** at the bottom of the page.
+**28.** Click the **Amazon Connect AWS console** link at the very bottom of the page.
 
 **29.** Click the name of your Connect instance in the **Instance Alias** column.
 
@@ -220,8 +222,9 @@ Wait until Amazon Connect finishes creating your virtual contact center.
 
 **31.** Under **Amazon Lex**:
 
+- For **Region**, select **Asia Pacific: Sydney** (which is where you just created the Lex Bot)
 - For **Bot**, select **BookAppointment**
-- Click **+ Add Lex Bot**
+- Click **+ Add Lex Bot** (to right right of _BookAppointment_)
 
 Note: It should now display the message "No Lex bots available to add" under the **Bot** field. If this message is _not_ displayed, make sure you clicked the **+ Add Lex Bot** link.
 
@@ -243,7 +246,7 @@ You will now configure the call flow that your callers will experience.
 
 **35.** Click **Create contact flow**.
 
-**36.** Click **Enter a name**, then enter: `Lex lab`
+**36.** Click **Enter a name** (in the top-left corner), then enter: `Lex lab`
 
 **37.** Under **Interact**, drag a **Get customer input** block onto the designer.
 
@@ -302,13 +305,11 @@ You will now configure the call flow that your callers will experience.
 
 ### Assign the contact flow to a phone number
 
-**46.** Open the Amazon Connect Dashboard
-
-**47.** In the left navigation pop-out menu, choose **Routing -> Phone numbers**.
+**46.** In the left navigation pop-out menu, choose **Routing -> Phone numbers**.
 
 ![](images/connect-phonenumber-1.png)
 
-**48.** Click **Claim a number**
+**47.** Click **Claim a number**
 
 **49.** Select a phone number in a location of your choice.
 
@@ -327,7 +328,7 @@ Use your phone to call the number you claimed, and follow the prompts.
 
 ## Clean Up
 
-Once you have finished testing the lab, follow these instructions to delete the resources from your AWS account. This will avoid any future costs for the services uses.
+Once you have finished testing the lab, follow these instructions to delete the resources from your AWS account. **This will avoid any future costs for the services uses.**
 
 **52.** To release the number you claimed:
 
@@ -335,11 +336,14 @@ Once you have finished testing the lab, follow these instructions to delete the 
 
 ![](images/connet-release.png)
 
-+++ Something goes here to delete Amazon Connect +++
-
 **53.** Close the Amazon Lex administrator browser tab (with the blue cloud icon)
 
-**54.** Return to the Amazon Connect management console browser tab (with the orange cube icon)
+**54.** Return to the Amazon Connect management console browser tab (with the orange cube icon), then:
+
+- In the left navigation pane, click **Amazon Connect** (above _Overview_)
+- Select (tick) the Instance Alias (tick the box, do not click the link)
+- Click **Remove**
+- You will be asked to type the name of your instance to confirm deletion
 
 **55.** In the **Services** menu, select **Amazon Lex**.
 
@@ -350,7 +354,7 @@ Once you have finished testing the lab, follow these instructions to delete the 
 
 **57.** Click the left arrow in the top-left corner to return to the Lex dashboard.
 
-**58.** Click the  ⃝ circle beside **BookAppointment**, then:
+**58.** Click the   ⃝ circle beside **BookAppointment**, then:
 
 - In the **Actions** menu, click **Delete**
 - Click **Continue**
@@ -366,4 +370,3 @@ Once you have finished testing the lab, follow these instructions to delete the 
 **61.** In the **Services** menu, select **CloudFormation**, then:
 
 - Delete the **LexFunction** stack.
-
