@@ -266,7 +266,7 @@ You will now configure the call flow that your callers will experience.
 - Click **Use attribute**
 - **Destination key:** `ContactNumber`
 - **Type:** _System_
-- **Attribute:** _Contact Number_
+- **Attribute:** _Customer Number_
 
 ![](images/connect-contactflow-addattributes.png)
 
