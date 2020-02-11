@@ -258,7 +258,7 @@ You will now configure the call flow that your callers will experience.
 **39.** Below that, click the **Amazon Lex** heading, then:
 
 - **Select an existing Lex bot:** _BookAppointment_
-- **Alias:** `$BookAppointment`
+- **Alias:** `BookAppointment`
 
 ![](images/connect-contactflow-addlexbot.png)
 
